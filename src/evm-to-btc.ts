@@ -1,5 +1,6 @@
 import { createOrder, isEVMOrder } from "./create-order";
 import { initiateViaRelayer, submitTransaction } from "./initiate";
+import { parseEnv } from "./parseEnv";
 import { getQuote } from "./quote";
 
 async function evmToBtcSwap() {
@@ -28,8 +29,8 @@ async function evmToBtcSwap() {
 
     const order = await createOrder(
       quote,
-      process.env.EVM_ADDRESS!,
-      process.env.BTC_ADDRESS!
+      parseEnv(process.env.EVM_ADDRESS, "EVM_ADDRESS"),
+      parseEnv(process.env.BTC_ADDRESS, "BTC_ADDRESS")
     );
 
     console.log("Order created");

@@ -1,4 +1,5 @@
 import { createOrder, isBTCOrder } from "./create-order";
+import { parseEnv } from "./parseEnv";
 import { getQuote } from "./quote";
 
 async function btcToEvmSwap() {
@@ -27,8 +28,8 @@ async function btcToEvmSwap() {
 
     const order = await createOrder(
       quote,
-      process.env.BTC_ADDRESS!, // Your bitcoin address
-      process.env.EVM_ADDRESS! // Your arbitrum address
+      parseEnv(process.env.BTC_ADDRESS, "BTC_ADDRESS"), // Your bitcoin address
+      parseEnv(process.env.EVM_ADDRESS, "EVM_ADDRESS") // Your arbitrum address
     );
 
     console.log("Order created");

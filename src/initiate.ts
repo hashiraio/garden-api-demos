@@ -1,9 +1,13 @@
 import { ethers } from "ethers";
 import type { EVMOrder, EVMTransaction } from "./create-order";
+import { parseEnv } from "./parseEnv";
 
-const EVM_PRIVATE_KEY = process.env.EVM_PRIVATE_KEY || "";
-const API_BASE_URL = process.env.GARDEN_API_URL || "https://api.garden.finance";
-const API_KEY = process.env.GARDEN_API_KEY || "";
+const EVM_PRIVATE_KEY = parseEnv(
+  process.env.EVM_PRIVATE_KEY,
+  "EVM_PRIVATE_KEY"
+);
+const API_BASE_URL = parseEnv(process.env.GARDEN_API_URL, "GARDEN_API_URL");
+const API_KEY = parseEnv(process.env.GARDEN_API_KEY, "GARDEN_API_KEY");
 
 const RPC_URLS: Record<number, string> = {
   42161: "https://arb1.arbitrum.io/rpc",
@@ -14,10 +18,6 @@ export async function submitTransaction(
   transaction: EVMTransaction,
   waitForConfirmation: boolean = true
 ): Promise<string> {
-  if (!EVM_PRIVATE_KEY) {
-    throw new Error("EVM_PRIVATE_KEY not set");
-  }
-
   const rpcUrl = RPC_URLS[transaction.chain_id];
   if (!rpcUrl) {
     throw new Error(`No RPC URL for chain ${transaction.chain_id}`);
@@ -49,10 +49,6 @@ export async function submitTransaction(
 }
 
 export async function initiateViaRelayer(order: EVMOrder): Promise<string> {
-  if (!EVM_PRIVATE_KEY) {
-    throw new Error("EVM_PRIVATE_KEY not set");
-  }
-
   if (!order.typed_data) {
     throw new Error("Order does not support relayer (no typed_data)");
   }

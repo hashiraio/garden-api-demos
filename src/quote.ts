@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.GARDEN_API_URL || "https://api.garden.finance";
+import { parseEnv } from "./parseEnv";
+
+const API_BASE_URL = parseEnv(process.env.GARDEN_API_URL, "GARDEN_API_URL");
 
 export interface Asset {
   asset: string;

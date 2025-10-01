@@ -4,17 +4,23 @@ API integration examples for Garden Finance cross-chain swaps.
 
 ## Setup
 
-```bash
-# Install dependencies
-bun install
+Install dependencies:
 
-# Configure environment
-export GARDEN_API_KEY="your_api_key"
-export BTC_ADDRESS="your_btc_address"
-export EVM_ADDRESS="your_evm_address"
-export EVM_PRIVATE_KEY="your_evm_private_key"
-# Optional: Set custom API URL (defaults to https://api.garden.finance)
-export GARDEN_API_URL="https://api.garden.finance"
+```bash
+bun install
+```
+
+### Environment Configuration
+
+Create a `.env` file in the project root with the following:
+
+```env
+GARDEN_API_KEY=your_api_key_here
+BTC_ADDRESS=your_bitcoin_address
+EVM_ADDRESS=your_evm_address
+EVM_PRIVATE_KEY=your_evm_private_key
+GARDEN_API_URL=https://api.garden.finance
+GASLESS=true
 ```
 
 ## Usage

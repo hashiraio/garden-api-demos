@@ -1,7 +1,8 @@
+import { parseEnv } from "./parseEnv";
 import type { Quote } from "./quote";
 
-const API_BASE_URL = process.env.GARDEN_API_URL || "https://api.garden.finance";
-const API_KEY = process.env.GARDEN_API_KEY || "";
+const API_BASE_URL = parseEnv(process.env.GARDEN_API_URL, "GARDEN_API_URL");
+const API_KEY = parseEnv(process.env.GARDEN_API_KEY, "GARDEN_API_KEY");
 
 export interface OrderAsset {
   asset: string;
