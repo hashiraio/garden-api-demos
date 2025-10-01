@@ -1,5 +1,5 @@
 import { createOrder, isEVMOrder } from "./create-order";
-import { submitTransaction } from "./initiate";
+import { initiateViaRelayer, submitTransaction } from "./initiate";
 import { getQuote } from "./quote";
 
 async function evmToBtcSwap() {
@@ -41,7 +41,6 @@ async function evmToBtcSwap() {
       if (order.approval_transaction) {
         console.log("Submitting approval transaction");
         await submitTransaction(order.approval_transaction);
-        console.log();
       }
 
       // You have two options to initiate the swap:
@@ -49,15 +48,15 @@ async function evmToBtcSwap() {
       // 2. Use the relayer service to handle the transaction for you (recommended for simplicity).
       // We'll proceed with the relayer approach below.
 
-      // console.log("Initiating swap via relayer");
-      // const txHash1 = await initiateViaRelayer(order);
-      // console.log(`Transaction Hash: ${txHash1}`);
-
-      // or
-
-      // console.log("Initiate transaction");
-      // const txHash2 = await submitTransaction(order.initiate_transaction);
-      // console.log(`Transaction hash: ${txHash2}`);
+      // if GASLESS is set to true, we will use the relayer to initiate the swap
+      // otherwise, we will submit the initiate transaction directly to the blockchain
+      if (process.env.GASLESS) {
+        console.log("Initiating swap via relayer");
+        await initiateViaRelayer(order);
+      } else {
+        console.log("Initiate transaction by submitting.");
+        await submitTransaction(order.initiate_transaction);
+      }
 
       console.log(
         `Swap will complete in approximately ${quote.estimated_time} seconds`
