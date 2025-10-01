@@ -28,8 +28,8 @@ async function evmToBtcSwap() {
 
     const order = await createOrder(
       quote,
-      "0x5A6A32dE366b917A594342B28530d53708f2881c",
-      "bc1qzy4wc2kghm0w6kxy2243wwx5kdv2r06zfy3z03"
+      process.env.EVM_ADDRESS!,
+      process.env.BTC_ADDRESS!
     );
 
     console.log("Order created");

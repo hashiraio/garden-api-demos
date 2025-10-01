@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import type { EVMOrder, EVMTransaction } from "./create-order";
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
+const EVM_PRIVATE_KEY = process.env.EVM_PRIVATE_KEY || "";
 const API_BASE_URL = process.env.GARDEN_API_URL || "https://api.garden.finance";
 const API_KEY = process.env.GARDEN_API_KEY || "";
 
@@ -14,8 +14,8 @@ export async function submitTransaction(
   transaction: EVMTransaction,
   waitForConfirmation: boolean = true
 ): Promise<string> {
-  if (!PRIVATE_KEY) {
-    throw new Error("PRIVATE_KEY not set");
+  if (!EVM_PRIVATE_KEY) {
+    throw new Error("EVM_PRIVATE_KEY not set");
   }
 
   const rpcUrl = RPC_URLS[transaction.chain_id];
@@ -26,7 +26,7 @@ export async function submitTransaction(
   console.log(`Connecting to chain ${transaction.chain_id}`);
 
   const provider = new ethers.JsonRpcProvider(rpcUrl);
-  const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+  const wallet = new ethers.Wallet(EVM_PRIVATE_KEY, provider);
 
   console.log(`Submitting transaction from ${wallet.address}`);
 
@@ -49,8 +49,8 @@ export async function submitTransaction(
 }
 
 export async function initiateViaRelayer(order: EVMOrder): Promise<string> {
-  if (!PRIVATE_KEY) {
-    throw new Error("PRIVATE_KEY not set");
+  if (!EVM_PRIVATE_KEY) {
+    throw new Error("EVM_PRIVATE_KEY not set");
   }
 
   if (!order.typed_data) {
@@ -59,7 +59,7 @@ export async function initiateViaRelayer(order: EVMOrder): Promise<string> {
 
   console.log("Signing EIP-712 typed data");
 
-  const wallet = new ethers.Wallet(PRIVATE_KEY);
+  const wallet = new ethers.Wallet(EVM_PRIVATE_KEY);
 
   const signature = await wallet.signTypedData(
     order.typed_data.domain,

@@ -27,8 +27,8 @@ async function btcToEvmSwap() {
 
     const order = await createOrder(
       quote,
-      "bc1qzy4wc2kghm0w6kxy2243wwx5kdv2r06zfy3z03", // Your bitcoin address
-      "0x5A6A32dE366b917A594342B28530d53708f2881c" // Your arbitrum address
+      process.env.BTC_ADDRESS!, // Your bitcoin address
+      process.env.EVM_ADDRESS! // Your arbitrum address
     );
 
     console.log("Order created");

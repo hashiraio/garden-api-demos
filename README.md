@@ -10,8 +10,9 @@ bun install
 
 # Configure environment
 export GARDEN_API_KEY="your_api_key"
-export PRIVATE_KEY="your_private_key"
-
+export BTC_ADDRESS="your_btc_address"
+export EVM_ADDRESS="your_evm_address"
+export EVM_PRIVATE_KEY="your_evm_private_key"
 # Optional: Set custom API URL (defaults to https://api.garden.finance)
 export GARDEN_API_URL="https://api.garden.finance"
 ```
