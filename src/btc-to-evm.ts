@@ -7,11 +7,7 @@ async function btcToEvmSwap() {
 
     console.log("Step 1: Getting quote\n");
 
-    const quotes = await getQuote(
-      "bitcoin_testnet:btc",
-      "arbitrum_sepolia:usdc",
-      "50000"
-    );
+    const quotes = await getQuote("bitcoin:btc", "arbitrum:usdc", "50000");
 
     if (!quotes || quotes.length === 0) {
       throw new Error("No quotes available");
@@ -31,7 +27,7 @@ async function btcToEvmSwap() {
 
     const order = await createOrder(
       quote,
-      "tb1qzy4wc2kghm0w6kxy2243wwx5kdv2r06zrz235z", // Your bitcoin address
+      "bc1qzy4wc2kghm0w6kxy2243wwx5kdv2r06zfy3z03", // Your bitcoin address
       "0x5A6A32dE366b917A594342B28530d53708f2881c" // Your arbitrum address
     );
 

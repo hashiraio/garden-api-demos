@@ -8,11 +8,7 @@ async function evmToBtcSwap() {
 
     console.log("Step 1: Getting quote\n");
 
-    const quotes = await getQuote(
-      "arbitrum_sepolia:usdc",
-      "bitcoin_testnet:btc",
-      "15000000"
-    );
+    const quotes = await getQuote("arbitrum:usdc", "bitcoin:btc", "15000000");
 
     if (!quotes || quotes.length === 0) {
       throw new Error("No quotes available");
@@ -33,7 +29,7 @@ async function evmToBtcSwap() {
     const order = await createOrder(
       quote,
       "0x5A6A32dE366b917A594342B28530d53708f2881c",
-      "tb1qzy4wc2kghm0w6kxy2243wwx5kdv2r06zrz235z"
+      "bc1qzy4wc2kghm0w6kxy2243wwx5kdv2r06zfy3z03"
     );
 
     console.log("Order created");
@@ -61,7 +57,6 @@ async function evmToBtcSwap() {
 
       // console.log("Initiate transaction");
       // const txHash2 = await submitTransaction(order.initiate_transaction);
-
       // console.log(`Transaction hash: ${txHash2}`);
 
       console.log(
