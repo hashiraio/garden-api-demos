@@ -2,10 +2,22 @@ import { ethers } from "ethers";
 import type { EVMOrder, EVMTransaction } from "./create-order";
 import { parseEnv } from "./parseEnv";
 
+import { Effect } from "effect";
+import { addHexPrefix, TronHTLC, type HTLCSwap } from "tron-htlc";
+import { TronWeb } from "tronweb";
+
 const EVM_PRIVATE_KEY = parseEnv(
   process.env.EVM_PRIVATE_KEY,
   "EVM_PRIVATE_KEY"
 );
+
+const TRON_RPC_URL = parseEnv(process.env.TRON_RPC_URL, "TRON_RPC_URL");
+
+const TRON_PRIVATE_KEY = parseEnv(
+  process.env.TRON_PRIVATE_KEY,
+  "TRON_PRIVATE_KEY"
+);
+
 const API_BASE_URL = parseEnv(process.env.GARDEN_API_URL, "GARDEN_API_URL");
 const API_KEY = parseEnv(process.env.GARDEN_API_KEY, "GARDEN_API_KEY");
 
@@ -48,26 +60,14 @@ export async function submitTransaction(
   return tx.hash;
 }
 
-export async function initiateViaRelayer(order: EVMOrder): Promise<string> {
-  if (!order.typed_data) {
-    throw new Error("Order does not support relayer (no typed_data)");
-  }
-
-  console.log("Signing EIP-712 typed data");
-
-  const wallet = new ethers.Wallet(EVM_PRIVATE_KEY);
-
-  const signature = await wallet.signTypedData(
-    order.typed_data.domain,
-    {
-      [order.typed_data.primaryType]:
-        order.typed_data.types[order.typed_data.primaryType] || [],
-    },
-    order.typed_data.message
-  );
-
-  console.log(`Signature: ${signature}`);
-  console.log("Submitting to relayer");
+export async function initiateViaRelayer(
+  order: EVMOrder,
+  chainType: string
+): Promise<string> {
+  const signature =
+    chainType === "EVM"
+      ? await getEvmInitiateSignature(order)
+      : await getTronInitiateSignature(order);
 
   const response = await fetch(
     `${API_BASE_URL}/v2/orders/${order.order_id}?action=initiate`,
@@ -98,4 +98,58 @@ export async function initiateViaRelayer(order: EVMOrder): Promise<string> {
   console.log(`Transaction hash: ${data.result}`);
 
   return data.result;
+}
+
+async function getEvmInitiateSignature(order: EVMOrder): Promise<string> {
+  if (!order.typed_data) {
+    throw new Error("Order does not support relayer (no typed_data)");
+  }
+
+  console.log("Signing EIP-712 typed data");
+
+  const wallet = new ethers.Wallet(EVM_PRIVATE_KEY);
+
+  const signature = await wallet.signTypedData(
+    order.typed_data.domain,
+    {
+      [order.typed_data.primaryType]:
+        order.typed_data.types[order.typed_data.primaryType] || [],
+    },
+    order.typed_data.message
+  );
+
+  return signature;
+}
+
+export async function getTronInitiateSignature(
+  order: EVMOrder
+): Promise<string> {
+  if (!order.typed_data) {
+    throw new Error("Order does not support relayer (no typed_data)");
+  }
+
+  const htlcContract = new TronHTLC(
+    new TronWeb({ privateKey: TRON_PRIVATE_KEY, fullHost: TRON_RPC_URL })
+  );
+
+  let swap: HTLCSwap = {
+    amount: BigInt(order.typed_data.message.amount),
+    initiator: "",
+    redeemer: order.typed_data.message.redeemer,
+    secret_hash: order.typed_data.message.secretHash,
+    order_id: addHexPrefix(order.order_id),
+    timelock: Number(BigInt(order.typed_data.message.timelock)),
+    destination_data: "0x",
+  };
+
+  const signature = await Effect.runPromise(
+    htlcContract.getInitiateSignature(
+      swap,
+      order.typed_data.domain.verifyingContract
+    )
+  );
+
+  console.log("Signature: ", signature);
+
+  return signature;
 }

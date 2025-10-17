@@ -19,8 +19,12 @@ GARDEN_API_KEY=your_api_key_here
 BTC_ADDRESS=your_bitcoin_address
 EVM_ADDRESS=your_evm_address
 EVM_PRIVATE_KEY=your_evm_private_key
+TRON_ADDRESS=your_tron_address
+
+# Optional
 GARDEN_API_URL=https://api.garden.finance
 GASLESS=true
+ITERATIONS=1
 ```
 
 ## Usage

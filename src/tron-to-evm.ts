@@ -3,13 +3,17 @@ import { initiateViaRelayer, submitTransaction } from "./initiate";
 import { parseEnv } from "./parseEnv";
 import { getQuote } from "./quote";
 
-async function evmToBtcSwap() {
+async function tronToEvmSwap() {
   try {
-    console.log("Starting Arbitrum USDC to BTC swap\n");
+    console.log("Starting Tron USDT to EVM swap\n");
 
     console.log("Step 1: Getting quote\n");
 
-    const quotes = await getQuote("arbitrum:usdc", "bitcoin:btc", "15000000");
+    const quotes = await getQuote(
+      "tron_shasta:usdt",
+      "arbitrum_sepolia:wbtc",
+      "10000000"
+    );
 
     if (!quotes || quotes.length === 0) {
       throw new Error("No quotes available");
@@ -18,9 +22,9 @@ async function evmToBtcSwap() {
     const quote = quotes[0]!;
     console.log("Quote received");
     console.log(`Solver: ${quote.solver_id}`);
-    console.log(`Send: ${quote.source.display} USDC ($${quote.source.value})`);
+    console.log(`Send: ${quote.source.display} USDT ($${quote.source.value})`);
     console.log(
-      `Receive: ${quote.destination.display} BTC ($${quote.destination.value})`
+      `Receive: ${quote.destination.display} WBTC ($${quote.destination.value})`
     );
     console.log(`Estimated time: ${quote.estimated_time} seconds`);
     console.log(`Slippage: ${quote.slippage / 100}%\n`);
@@ -29,8 +33,8 @@ async function evmToBtcSwap() {
 
     const order = await createOrder(
       quote,
-      parseEnv(process.env.EVM_ADDRESS, "EVM_ADDRESS"),
-      parseEnv(process.env.BTC_ADDRESS, "BTC_ADDRESS")
+      parseEnv(process.env.TRON_ADDRESS, "TRON_ADDRESS"),
+      parseEnv(process.env.EVM_ADDRESS, "EVM_ADDRESS")
     );
 
     console.log("Order created");
@@ -44,19 +48,12 @@ async function evmToBtcSwap() {
         await submitTransaction(order.approval_transaction);
       }
 
-      // You have two options to initiate the swap:
-      // 1. Submit the initiate transaction directly to the blockchain using the provided transaction data.
-      // 2. Use the relayer service to handle the transaction for you (recommended for simplicity).
-      // We'll proceed with the relayer approach below.
-
-      // if GASLESS is set to true, we will use the relayer to initiate the swap
-      // otherwise, we will submit the initiate transaction directly to the blockchain
       if (process.env.GASLESS) {
         console.log("Initiating swap via relayer");
-        await initiateViaRelayer(order, "EVM");
+        await initiateViaRelayer(order, "TRON");
       } else {
         console.log("Initiate transaction by submitting.");
-        await submitTransaction(order.initiate_transaction);
+        // await submitTransaction(order.initiate_transaction);
       }
 
       console.log(
@@ -71,4 +68,30 @@ async function evmToBtcSwap() {
   }
 }
 
-evmToBtcSwap();
+async function runMultipleSwaps() {
+  const iterations = parseInt(process.env.ITERATIONS || "1");
+
+  console.log(`Running ${iterations} swap(s)\n`);
+
+  for (let i = 1; i <= iterations; i++) {
+    console.log(`=== Swap ${i}/${iterations} ===\n`);
+
+    try {
+      await tronToEvmSwap();
+      console.log(`Swap ${i} completed successfully\n`);
+    } catch (error) {
+      console.error(`Swap ${i} failed:`, error);
+      console.log(`Continuing with next swap...\n`);
+    }
+
+    // Add a small delay between swaps to avoid rate limiting
+    if (i < iterations) {
+      console.log("Waiting 2 seconds before next swap...\n");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  }
+
+  console.log("All swaps completed");
+}
+
+runMultipleSwaps();
