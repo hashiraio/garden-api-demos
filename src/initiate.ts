@@ -35,12 +35,12 @@ export async function submitTransaction(
     throw new Error(`No RPC URL for chain ${transaction.chain_id}`);
   }
 
-  console.log(`Connecting to chain ${transaction.chain_id}`);
+  console.log(` [TRANSACTION] Connecting to chain ${transaction.chain_id}`);
 
   const provider = new ethers.JsonRpcProvider(rpcUrl);
   const wallet = new ethers.Wallet(EVM_PRIVATE_KEY, provider);
 
-  console.log(`Submitting transaction from ${wallet.address}`);
+  console.log(` [TRANSACTION] Submitting transaction from ${wallet.address}`);
 
   const tx = await wallet.sendTransaction({
     to: transaction.to,
@@ -49,12 +49,12 @@ export async function submitTransaction(
     value: transaction.value,
   });
 
-  console.log(`Transaction hash: ${tx.hash}`);
+  console.log(` [TRANSACTION] Transaction hash: ${tx.hash}`);
 
   if (waitForConfirmation) {
-    console.log("Waiting for confirmation...");
+    console.log(" [TRANSACTION] Waiting for confirmation...");
     const receipt = await tx.wait();
-    console.log(`Confirmed in block ${receipt?.blockNumber}`);
+    console.log(` [TRANSACTION] Confirmed in block ${receipt?.blockNumber}`);
   }
 
   return tx.hash;
@@ -95,7 +95,7 @@ export async function initiateViaRelayer(
     throw new Error(data.error || "Relayer error");
   }
 
-  console.log(`Transaction hash: ${data.result}`);
+  console.log(` [RELAYER] Transaction hash: ${data.result}`);
 
   return data.result;
 }
@@ -104,8 +104,6 @@ async function getEvmInitiateSignature(order: EVMOrder): Promise<string> {
   if (!order.typed_data) {
     throw new Error("Order does not support relayer (no typed_data)");
   }
-
-  console.log("Signing EIP-712 typed data");
 
   const wallet = new ethers.Wallet(EVM_PRIVATE_KEY);
 
@@ -148,8 +146,6 @@ export async function getTronInitiateSignature(
       order.typed_data.domain.verifyingContract
     )
   );
-
-  console.log("Signature: ", signature);
 
   return signature;
 }
