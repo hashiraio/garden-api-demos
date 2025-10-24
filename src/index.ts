@@ -55,7 +55,7 @@ async function runScheduledSwaps() {
     console.log(
       `\n*** METRICS *** Current Stats: Total=${totalSwapsExecuted}, TRON→EVM=${tronToEvmCount}, EVM→TRON=${evmToTronCount}, Cycles=${cycleCount}\n`
     );
-  }, 10000); // 10 seconds
+  }, 120000); // 2 minutes
 }
 
 // Handle graceful shutdown
