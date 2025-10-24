@@ -1,5 +1,9 @@
 import { runMultipleSwaps as runEvmToTronSwap } from "./evm-to-tron";
+import { parseEnv } from "./parseEnv";
+
 import { runMultipleSwaps as runTronToEvmSwap } from "./tron-to-evm";
+
+const INTERVAL = parseInt(parseEnv(process.env.INTERVAL));
 
 // Global counters
 let totalSwapsExecuted = 0;
@@ -55,7 +59,7 @@ async function runScheduledSwaps() {
     console.log(
       `\n*** METRICS *** Current Stats: Total=${totalSwapsExecuted}, TRON→EVM=${tronToEvmCount}, EVM→TRON=${evmToTronCount}, Cycles=${cycleCount}\n`
     );
-  }, 120000); // 2 minutes
+  }, INTERVAL); // 2 minutes
 }
 
 // Handle graceful shutdown
